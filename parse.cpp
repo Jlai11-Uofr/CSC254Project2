@@ -9,7 +9,7 @@ using namespace std;
 #include "scan.h"
 
 const char* names[] = {"read", "write", "id", "literal", "gets", "add",
-                       "sub", "mul", "div", "lparen", "rparen", "eof"};
+                       "sub", "mul", "div", "lparen", "rparen", "eof","if","fi","do","od","check","==","<>",">=","<=",">","<"};
 
 static token upcoming_token;
 
@@ -26,7 +26,9 @@ void match (token expected) {
         cout << "\n";
         upcoming_token = scan ();
     }
-    else error ();
+    else {
+        error ();
+    }
 }
 
 void program ();
@@ -48,9 +50,10 @@ void relation() {
         case t_lparen:
         case t_id:
         case t_literal:
-        cout << "Relation -> E Et";
+        cout << "Relation -> E Et\n";
         expr();
         expr_tail();
+        break;
         default: error ();
     }
 }
@@ -67,12 +70,24 @@ void expr_tail() {
             cout << "predict  expr tail --> ro E";
             relation_op();
             expr();
+            break;
+        case t_id:
+        case t_rparen:
+        case t_read:
+        case t_write:
+        case t_if:
+        case t_fi:
+        case t_do:
+        case t_od:
+        case t_check:
+        case t_eof:
         default: error ();
     }
 }
 
 
 void program () {
+      //  cout << upcoming_token;
     switch (upcoming_token) {
         case t_id:
         case t_read:
@@ -94,11 +109,16 @@ void stmt_list () {
         case t_id:
         case t_read:
         case t_write:
+        case t_check:
+        case t_if:
+        case t_do:
             cout << "predict stmt_list --> stmt stmt_list\n";
             stmt ();
             stmt_list ();
             break;
         case t_eof:
+        case t_fi:
+        case t_od:
             cout << "predict stmt_list --> epsilon\n";
             break;          /* epsilon production */
         default: error ();
@@ -106,9 +126,10 @@ void stmt_list () {
 }
 
 void stmt () {
+   // cout << upcoming_token;
     switch (upcoming_token) {
         case t_id:
-            cout << "predict stmt --> id gets expr\n" ;
+            cout << "predict stmt --> id gets Relation\n" ;
             match (t_id);
             match (t_gets);
             expr ();
@@ -119,7 +140,7 @@ void stmt () {
             match (t_id);
             break;
         case t_write:
-            cout << "predict stmt --> write expr\n";
+            cout << "predict stmt --> write relation\n";
             match (t_write);
             expr ();
             break;
@@ -193,6 +214,10 @@ void term_tail () {
         case t_od:
         case t_equals:
         case t_greaterE:
+        case t_carrot:
+        case t_lessE:
+        case t_less:
+        case t_greater:
             cout << "predict term_tail --> epsilon\n";
             break;          /* epsilon production */
         default: error ();
@@ -234,6 +259,17 @@ void factor_tail () {
         case t_id:
         case t_read:
         case t_write:
+        case t_greaterE:
+        case t_greater:
+        case t_lessE:
+        case t_less:
+        case t_carrot:
+        case t_equals:
+        case t_if:
+        case t_fi:
+        case t_do:
+        case t_od:
+        case t_check:
         case t_eof:
             cout << "predict factor_tail --> epsilon\n";
             break;          /* epsilon production */
