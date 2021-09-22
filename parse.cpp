@@ -39,6 +39,38 @@ void factor ();
 void factor_tail ();
 void add_op ();
 void mul_op ();
+void relation_op ();
+void expr_tail ();
+void relation ();
+
+void relation() {
+    switch(upcoming_token) {
+        case t_lparen:
+        case t_id:
+        case t_literal:
+        cout << "Relation -> E Et";
+        expr();
+        expr_tail();
+        default: error ();
+    }
+}
+
+void expr_tail() {
+    switch(upcoming_token) {
+      
+        case t_equals:
+        case t_carrot:
+        case t_greater:
+        case t_less:
+        case t_lessE:
+        case t_greaterE:
+            cout << "predict  expr tail --> ro E";
+            relation_op();
+            expr();
+        default: error ();
+    }
+}
+
 
 void program () {
     switch (upcoming_token) {
@@ -46,6 +78,9 @@ void program () {
         case t_read:
         case t_write:
         case t_eof:
+        case t_if:
+        case t_do:
+        case t_check:
             cout << "predict program --> stmt_list eof\n";
             stmt_list ();
             match (t_eof);
@@ -88,6 +123,25 @@ void stmt () {
             match (t_write);
             expr ();
             break;
+        case t_if: 
+            cout << "predict stmt --> if relation SL if\n";
+            match(t_if);
+            relation ();
+            stmt_list ();
+            match(t_fi);
+            break;
+        case t_do:
+            cout << "predict stmt --> do SL od\n";
+            match(t_do);
+            stmt_list ();
+            match(t_od);
+            break;
+        case t_check:
+            cout << "predict stmt --> check relation \n";
+            match(t_check);
+            relation();
+            break;
+
         default: error ();
     }
 }
@@ -132,6 +186,13 @@ void term_tail () {
         case t_read:
         case t_write:
         case t_eof:
+        case t_if:
+        case t_do:
+        case t_check:
+        case t_fi:
+        case t_od:
+        case t_equals:
+        case t_greaterE:
             cout << "predict term_tail --> epsilon\n";
             break;          /* epsilon production */
         default: error ();
@@ -206,6 +267,37 @@ void mul_op () {
             break;
         default: error ();
     }
+}
+void relation_op() {
+    switch(upcoming_token) {
+        case t_equals:
+            cout << "predict rop -- > eqauls";
+            match(t_equals);
+            break;
+        case t_carrot:
+            cout << "predict rop --> <>";
+            match(t_carrot);
+            break;
+        case t_greater:
+            cout << "predict rop --> >";
+            match(t_greater);
+            break;
+        case t_less:
+            cout << "predict rop --> <";
+            match(t_less);
+            break;
+        case t_lessE:
+            cout << "predict rop --> <=";
+            match(t_lessE);
+            break;
+        case t_greaterE:
+            cout << "predict rop --> >=";
+            match(t_greaterE);
+            break;
+    default: error();
+    }
+
+
 }
 
 int main () {
