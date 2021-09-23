@@ -61,6 +61,16 @@ token scan() {
                 return t_gets;
             }
             break;
+        case '$':
+            if((c==getchar()) != '$') {
+                cerr << "expected '=' after ':', got " << static_cast<char>(c) << "\n";
+                         exit(1);
+            }
+            else {
+                c = getchar();
+                return t_eof;
+            }
+            break;
         case '+': c = getchar(); return t_add;
         case '-': c = getchar(); return t_sub;
         case '*': c = getchar(); return t_mul;
