@@ -72,7 +72,6 @@ token scan() {
                 c = getchar();
                     return t_greaterE;
             } else {
-                c = getchar();
                 return t_greater;
             }
             break;
@@ -86,7 +85,6 @@ token scan() {
                 return t_carrot;
             }
             else {
-                c = getchar();
                 return t_less;
             }
             break;
