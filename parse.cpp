@@ -9,7 +9,7 @@ using namespace std;
 #include "scan.h"
 
 const char* names[] = {"read", "write", "id", "literal", "gets", "add",
-                       "sub", "mul", "div", "lparen", "rparen", "eof","if","fi","do","od","check","==","<>",">=","<=",">","<"};
+                       "sub", "mul", "div", "lparen", "rparen", "eof","if","fi","do","od","check","==","<>",">","<",">=","<="};
 
 static token upcoming_token;
 
@@ -67,7 +67,7 @@ void expr_tail() {
         case t_less:
         case t_lessE:
         case t_greaterE:
-            cout << "predict  expr tail --> ro E";
+            cout << "predict  expr tail --> ro E\n";
             relation_op();
             expr();
             break;
@@ -307,27 +307,27 @@ void mul_op () {
 void relation_op() {
     switch(upcoming_token) {
         case t_equals:
-            cout << "predict rop -- > eqauls";
+            cout << "predict rop -- > eqauls\n";
             match(t_equals);
             break;
         case t_carrot:
-            cout << "predict rop --> <>";
+            cout << "predict rop --> <>\n";
             match(t_carrot);
             break;
         case t_greater:
-            cout << "predict rop --> >";
+            cout << "predict rop --> >\n";
             match(t_greater);
             break;
         case t_less:
-            cout << "predict rop --> <";
+            cout << "predict rop --> <\n";
             match(t_less);
             break;
         case t_lessE:
-            cout << "predict rop --> <=";
+            cout << "predict rop --> <=\n";
             match(t_lessE);
             break;
         case t_greaterE:
-            cout << "predict rop --> >=";
+            cout << "predict rop --> >=\n";
             match(t_greaterE);
             break;
     default: error();

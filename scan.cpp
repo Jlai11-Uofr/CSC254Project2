@@ -67,8 +67,38 @@ token scan() {
         case '/': c = getchar(); return t_div;
         case '(': c = getchar(); return t_lparen;
         case ')': c = getchar(); return t_rparen;
-        case '>': c = getchar(); return t_greater;
-        case '<': c = getchar(); return t_less;
+        case '>': 
+         if ((c = getchar()) == '=') {
+                c = getchar();
+                    return t_greaterE;
+            } else {
+                c = getchar();
+                return t_greater;
+            }
+            break;
+        case '<': 
+        if ((c = getchar()) == '=') {
+                    c=getchar();
+                        return t_lessE;
+            } 
+            else if(c == '>') {
+                c = getchar();
+                return t_carrot;
+            }
+            else {
+                c = getchar();
+                return t_less;
+            }
+            break;
+        case '=': 
+                 if ((c = getchar()) != '=') {
+                        cerr << "expected '=' after '=', got " << static_cast<char>(c) << "\n";
+                         exit(1);
+            } else {
+                c = getchar();
+                return t_equals;
+            }
+            break;
         default:
             cerr << "unexpected character " <<  static_cast<char>(c)<< "\n";
             exit(1);
