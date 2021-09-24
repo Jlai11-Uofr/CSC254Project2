@@ -55,20 +55,13 @@ token scan() {
         case ':':
             if ((c = getchar()) != '=') {
                         cerr << "expected '=' after ':', got " << static_cast<char>(c) << "\n";
-                         exit(1);
+                        //Lexical error could occur here as well
+                        c = getchar();
+                        return scan();
+                        // exit(1);
             } else {
                 c = getchar();
                 return t_gets;
-            }
-            break;
-        case '$':
-            if((c==getchar()) != '$') {
-                cerr << "expected '=' after ':', got " << static_cast<char>(c) << "\n";
-                         exit(1);
-            }
-            else {
-                c = getchar();
-                return t_eof;
             }
             break;
         case '+': c = getchar(); return t_add;
@@ -87,8 +80,8 @@ token scan() {
             break;
         case '<': 
         if ((c = getchar()) == '=') {
-                    c=getchar();
-                        return t_lessE;
+                c=getchar();
+                return t_lessE;
             } 
             else if(c == '>') {
                 c = getchar();
@@ -108,7 +101,9 @@ token scan() {
             }
             break;
         default:
-            cerr << "unexpected character " <<  static_cast<char>(c)<< "\n";
-            exit(1);
+            cout << "unexpected character " <<  static_cast<char>(c)<< "\n";
+            c = getchar();
+            return scan();
+        
     }
 }
