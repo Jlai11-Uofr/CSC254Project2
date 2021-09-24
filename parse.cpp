@@ -42,17 +42,17 @@ void program();
 string stmt_list();
 string stmt();
 string expr();
-void term();
-void term_tail();
-void factor();
-void factor_tail();
-void add_op();
-void mul_op();
-void relation_op();
-void expr_tail();
-void relation();
+string term();
+string term_tail();
+string factor();
+string factor_tail();
+string add_op();
+string mul_op();
+string relation_op();
+string expr_tail();
+string relation();
 
-void relation()
+string relation()
 {
     switch (upcoming_token)
     {
@@ -68,7 +68,7 @@ void relation()
     }
 }
 
-void expr_tail()
+string expr_tail()
 {
     switch (upcoming_token)
     {
@@ -214,7 +214,7 @@ string expr()
     }
 }
 
-void term()
+string term()
 {
     switch (upcoming_token)
     {
@@ -230,7 +230,7 @@ void term()
     }
 }
 
-void term_tail()
+string term_tail()
 {
     switch (upcoming_token)
     {
@@ -264,7 +264,7 @@ void term_tail()
     }
 }
 
-void factor()
+string factor()
 {
     switch (upcoming_token)
     {
@@ -287,7 +287,7 @@ void factor()
     }
 }
 
-void factor_tail()
+string factor_tail()
 {
     switch (upcoming_token)
     {
@@ -323,7 +323,7 @@ void factor_tail()
     }
 }
 
-void add_op()
+string add_op()
 {
     switch (upcoming_token)
     {
@@ -340,7 +340,7 @@ void add_op()
     }
 }
 
-void mul_op()
+string mul_op()
 {
     switch (upcoming_token)
     {
@@ -356,7 +356,7 @@ void mul_op()
         error();
     }
 }
-void relation_op()
+string relation_op()
 {
     switch (upcoming_token)
     {
