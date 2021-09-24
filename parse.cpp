@@ -19,7 +19,7 @@ void error()
     exit(1);
 }
 
-string answer = " ";
+static string answer;
 
 // Given a current token. We try and consume it. If it's Not a valid token in names, then we have to throw an error.
 void match(token expected)
@@ -110,7 +110,8 @@ void program()
     case t_if:
     case t_do:
     case t_check:
-        cout << "predict program --> stmt_list eof\n";
+       // cout << "predict program --> stmt_list eof\n";
+       answer = "( [ program(       ] )";
         stmt_list();
         match(t_eof);
         break;
@@ -380,10 +381,10 @@ void relation_op()
 }
 
 int main()
-{
+{   answer = "";
     upcoming_token = scan();
     program();
-    cout << "hello"; 
+    cout << answer; 
     
        return 0;
 }
