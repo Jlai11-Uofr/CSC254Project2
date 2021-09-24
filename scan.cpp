@@ -80,7 +80,7 @@ token scan() {
             break;
         case '<': 
         if ((c = getchar()) == '=') {
-                c=getchar();
+                c = getchar();
                 return t_lessE;
             } 
             else if(c == '>') {
@@ -94,7 +94,8 @@ token scan() {
         case '=': 
                  if ((c = getchar()) != '=') {
                         cerr << "expected '=' after '=', got " << static_cast<char>(c) << "\n";
-                         exit(1);
+                        c = getchar();
+                        return scan();
             } else {
                 c = getchar();
                 return t_equals;

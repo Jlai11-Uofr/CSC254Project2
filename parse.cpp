@@ -39,9 +39,9 @@ void match(token expected)
 }
 
 void program();
-void stmt_list();
-void stmt();
-void expr();
+string stmt_list();
+string stmt();
+string expr();
 void term();
 void term_tail();
 void factor();
@@ -111,8 +111,8 @@ void program()
     case t_do:
     case t_check:
        // cout << "predict program --> stmt_list eof\n";
-       answer = "( [ program(       ] )";
-        stmt_list();
+       answer = "( [ program( "+ stmt_list() + " ] )";
+        //stmt_list();
         match(t_eof);
         break;
     default:
@@ -120,8 +120,9 @@ void program()
     }
 }
 
-void stmt_list()
+string stmt_list()
 {
+    string stmt_list_string = "";
     switch (upcoming_token)
     {
     case t_id:
@@ -130,9 +131,8 @@ void stmt_list()
     case t_check:
     case t_if:
     case t_do:
-        cout << "predict stmt_list --> stmt stmt_list\n";
-        stmt();
-        stmt_list();
+            stmt_list_string = "( [ ( " + stmt() + ") " + "( " + stmt_list() + ")";
+        return stmt_list_string;
         break;
     case t_eof:
     case t_fi:
@@ -144,44 +144,53 @@ void stmt_list()
     }
 }
 
-void stmt()
+string stmt()
 {
+    string stmt_string = "";
     // cout << upcoming_token;
     switch (upcoming_token)
     {
     case t_id:
-        cout << "predict stmt --> id gets Relation\n";
+        //cout << "predict stmt --> id gets Relation\n";
         match(t_id);
         match(t_gets);
-        expr();
+        stmt_string = ":= " + t_id + expr();
+        //expr();
+        return stmt_string;
         break;
     case t_read:
-        cout << "predict stmt --> read id\n";
+        //cout << "predict stmt --> read id\n";
         match(t_read);
         match(t_id);
+        stmt_string = "read" + t_id;
+        return stmt_string;
         break;
     case t_write:
-        cout << "predict stmt --> write relation\n";
+        //cout << "predict stmt --> write relation\n";
         match(t_write);
-        expr();
+        stmt_string = "write " + expr(); 
+        return stmt_string;
         break;
     case t_if:
-        cout << "predict stmt --> if relation SL if\n";
+        //cout << "predict stmt --> if relation SL if\n";
         match(t_if);
         relation();
         stmt_list();
         match(t_fi);
+        return stmt_string;
         break;
     case t_do:
         cout << "predict stmt --> do SL od\n";
         match(t_do);
         stmt_list();
         match(t_od);
+        return stmt_string;
         break;
     case t_check:
         cout << "predict stmt --> check relation \n";
         match(t_check);
         relation();
+        return stmt_string;
         break;
 
     default:
@@ -189,7 +198,7 @@ void stmt()
     }
 }
 
-void expr()
+string expr()
 {
     switch (upcoming_token)
     {
