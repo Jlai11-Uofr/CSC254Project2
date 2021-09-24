@@ -12,5 +12,8 @@ CFLAGS = -g -O2 -Wall -Wpedantic
 parse: parse.o scan.o
 	$(CC) $(CFLAGS) -o parse parse.o scan.o
 
+clean:
+	rm *.o parse
+
 parse.o: scan.h
 scan.o: scan.h
