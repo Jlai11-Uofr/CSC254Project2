@@ -293,9 +293,9 @@ void match(token expected)
 {
     if (upcoming_token == expected)
     {
-        cout << "matched " << names[upcoming_token];
+      //  cout << "matched " << names[upcoming_token];
         if (upcoming_token == t_id || upcoming_token == t_literal)
-            cout << ": " << token_image;
+        //    cout << ": " << token_image;
         cout << "\n";
         upcoming_token = scan();
     }
@@ -336,7 +336,7 @@ string program()
     case t_do:
     case t_check:
     case t_eof:
-        cout << "predict P -> SL $$ \n";
+        //cout << "predict P -> SL $$ \n";
         s = s+ "(program [" + stmt_list() + "]\n";
         match(t_eof);
         break;
@@ -358,7 +358,7 @@ string stmt_list()
     case t_if:
     case t_do:
     case t_check:
-        cout << "predict SL --> S SL \n";
+       // cout << "predict SL --> S SL \n";
         s = s + stmt ();
         s = s+  stmt_list ();
         //stmt();
@@ -367,7 +367,7 @@ string stmt_list()
     case t_eof:
     case t_fi:
     case t_od:
-        cout << "predict SL --> epsilon \n";
+       // cout << "predict SL --> epsilon \n";
         return "";
         break;
     default:
@@ -383,36 +383,42 @@ string stmt()
     switch (upcoming_token)
     {
     case t_id:
-        cout << "predict S --> id := R \n";
-        match(t_id);
+      //  cout << "predict S --> id := R \n";
+           s = s + ":= " + " \"" +  string(token_image) + "\" ";
+         match(t_id);
         match(t_gets);
-        s = s + ":= " + " \"" +  string(token_image) + "\" ";
+   
+     
+      
         s = s + relation();
         break;
     case t_read:
-        cout << "predict S --> read id \n";
-        match(t_read);
-        match(t_id);
+      //  cout << "predict S --> read id \n";
+          match(t_read);
         s = s + "read " + "\"" + string(token_image) + "\"";
+      
+        match(t_id);
         break;
     case t_write:
-        cout << "predict S --> write R \n";
+      //  cout << "predict S --> write R \n";
+              match(t_write);
         s = s + "write" + relation();
-        match(t_write);
+
       //  relation();
         break;
     case t_if:
-        cout << "predict S --> if R SL fi\n";
+     //   cout << "predict S --> if R SL fi\n";
+             match(t_if);
          s = s + "if\n";
         s = s + "(" + relation () + ")\n";
         s = s +  "[ " + stmt_list () + "]\n";
-        match(t_if);
+
        // relation();
         //stmt_list();
         match(t_fi);
         break;
     case t_do:
-        cout << "predict S --> do SL od \n";
+      //  cout << "predict S --> do SL od \n";
         match(t_do);
          s = s + "do\n";
         s = s +  "[ " + stmt_list () + "]\n";
@@ -420,9 +426,10 @@ string stmt()
         match(t_od);
         break;
     case t_check:
-        cout << "predict S --> check R \n";
+     //   cout << "predict S --> check R \n";
         match(t_check);
-        s = s+ "check" + relation();
+        s = s+ "check";
+        s =s +  relation();
         break;
     default:
         report_error("S");
@@ -439,7 +446,7 @@ string relation()
     case t_lparen:
     case t_id:
     case t_literal:
-        cout << "predict R --> E ET \n";
+       // cout << "predict R --> E ET \n";
         s = s + expr_tail (expr());
         //expr();
         //expr_tail();
@@ -459,8 +466,8 @@ string term()
         case t_lparen:
         case t_id:
         case t_literal:
-            cout << "predict T --> F FT \n";
-            s = factor_tail(factor());
+          //  cout << "predict T --> F FT \n";
+            s = s +  factor_tail(factor());
             break;
         default:
             report_error("T");
@@ -476,7 +483,7 @@ string expr()
     case t_lparen:
     case t_id:
     case t_literal:
-        cout << "predict expr --> T TT \n";
+      //  cout << "predict expr --> T TT \n";
         s = s + term_tail(term());
         //term();
        // term_tail();
@@ -494,19 +501,20 @@ string factor()
     switch (upcoming_token)
     {
     case t_lparen:
-        cout << "predict F --> ( R ) \n";
+     //   cout << "predict F --> ( R ) \n";
         match(t_lparen);
        // relation();
+          s =  s + relation ();
         match(t_rparen);
-        s =  s + relation ();
+     
         break;
     case t_id:
-        cout << "predict F --> id \n";
+    //    cout << "predict F --> id \n";
         s = s + "(id " + " \"" +  string(token_image) + "\")";
         match(t_id);
         break;
     case t_literal:
-        cout << "predict F --> lit \n";
+     //   cout << "predict F --> lit \n";
         s= s + "(num " + " \"" + string(token_image) + "\")";
         match(t_literal);
         break;
@@ -528,7 +536,7 @@ string expr_tail(string s1)
     case t_greater:
     case t_lessE:
     case t_greaterE:
-        cout << "predict ET --> ro E \n";
+     //   cout << "predict ET --> ro E \n";
          s = s + relation_op ();
         s = s+ s1;
         s = s +  expr ();
@@ -545,7 +553,7 @@ string expr_tail(string s1)
     case t_eof:
     case t_fi:
     case t_od:
-        cout << "predict ET --> epsilon \n";
+    //    cout << "predict ET --> epsilon \n";
         return s1;
         break;
     default:
@@ -562,7 +570,7 @@ string term_tail(string s1)
     {
     case t_add:
     case t_sub:
-        cout << "predict TT --> ao T TT \n";
+      //  cout << "predict TT --> ao T TT \n";
           s = s +  add_op ();
           s = s +s1;
           s = s + term_tail(term());
@@ -586,7 +594,7 @@ string term_tail(string s1)
     case t_eof:
     case t_fi:
     case t_od:
-        cout << "predict TT --> epsilon\n";
+      //  cout << "predict TT --> epsilon\n";
         return s1;
         break;
     default:
@@ -603,7 +611,7 @@ string factor_tail(string s1)
     {
     case t_mul:
     case t_div:
-        cout << "predict FT --> mo F FT \n";
+   //     cout << "predict FT --> mo F FT \n";
         s = s + mul_op();
         s = s + s1;
         s = s + factor_tail(factor());
@@ -629,7 +637,7 @@ string factor_tail(string s1)
     case t_eof:
     case t_fi:
     case t_od:
-        cout << "predict FT --> epsilon\n";
+     //   cout << "predict FT --> epsilon\n";
         return s1;
         break;
     default:
@@ -645,32 +653,32 @@ string relation_op()
     switch (upcoming_token)
     {
     case t_equals:
-        cout << "predict ro --> == \n";
+     //   cout << "predict ro --> == \n";
         match(t_equals);
         s = s + " ==";
         break;
     case t_carrot:
-        cout << "predict ro --> <> \n";
+     //   cout << "predict ro --> <> \n";
         match(t_carrot);
         s = s + "<>";
         break;
     case t_less:
-        cout << "predict ro --> < \n";
+      //  cout << "predict ro --> < \n";
         match(t_less);
         s = s + "<";
         break;
     case t_greater:
-        cout << "predict ro --> > \n";
+      //  cout << "predict ro --> > \n";
         match(t_greater);
         s = s + " >";
         break;
     case t_lessE:
-        cout << "predict ro --> <= \n";
+   //    cout << "predict ro --> <= \n";
         match(t_lessE);
         s = s + "<=";
         break;
     case t_greaterE:
-        cout << "predict ro --> >= \n";
+     //   cout << "predict ro --> >= \n";
         match(t_greaterE);
         s = s + ">=";
         break;
@@ -687,12 +695,13 @@ string add_op()
     switch (upcoming_token)
     {
     case t_add:
-        cout << "predict ao --> + \n";
+    //    cout << "predict ao --> + \n";
+       match(t_add);
         s = s + " + ";
-        match(t_add);
+     
         break;
     case t_sub:
-        cout << "predict ao --> - \n";
+    //    cout << "predict ao --> - \n";
         match(t_sub);
         s = s + "- ";
         break;
@@ -710,12 +719,13 @@ string mul_op()
     switch (upcoming_token)
     {
     case t_mul:
-        cout << "predict mo --> * \n";
-        s = s + " *";
+     //   cout << "predict mo --> * \n";
         match(t_mul);
+        s = s + " *";
+ 
         break;
     case t_div:
-        cout << "predict mo --> / \n";
+     //   cout << "predict mo --> / \n";
         match(t_div);
         s = s + "/";
         break;
@@ -733,48 +743,48 @@ int main()
     initialize_FOLLOW();
     initialize_TOK2STR();
 
-    cout << "CHECKING TABLE EPS \n";
-    map<string, bool>::iterator it1;
-    // for debugging
-    for (it1 = EPS.begin(); it1 != EPS.end(); it1++)
-    {
-        std::cout << it1->first // string (key)
-                  << ':'
-                  << it1->second // string's value
-                  << std::endl;
-    }
+    // cout << "CHECKING TABLE EPS \n";
+    // map<string, bool>::iterator it1;
+    // // for debugging
+    // for (it1 = EPS.begin(); it1 != EPS.end(); it1++)
+    // {
+    //     std::cout << it1->first // string (key)
+    //               << ':'
+    //               << it1->second // string's value
+    //               << std::endl;
+    // }
 
-    cout << "--------- CHECKING TABLE FIRST ------------ \n";
-    map<string, list<token>>::iterator it2;
-    // for debugging
-    for (it2 = FIRST.begin(); it2 != FIRST.end(); it2++)
-    {
-        string name = it2->first;
-        list<token> items = it2->second;
+    // cout << "--------- CHECKING TABLE FIRST ------------ \n";
+    // map<string, list<token>>::iterator it2;
+    // // for debugging
+    // for (it2 = FIRST.begin(); it2 != FIRST.end(); it2++)
+    // {
+    //     string name = it2->first;
+    //     list<token> items = it2->second;
 
-        cout << "[" << name << "]";
-        for (token &i : items)
-        {
-            cout << " " << TOK2STR[i];
-        }
-        cout << "\n";
-    }
+    //     cout << "[" << name << "]";
+    //     for (token &i : items)
+    //     {
+    //         cout << " " << TOK2STR[i];
+    //     }
+    //     cout << "\n";
+    // }
 
-    cout << "-------- CHECKING TABLE FOLLOW ----------- \n";
-    map<string, list<token>>::iterator it3;
-    // for debugging
-    for (it3 = FOLLOW.begin(); it3 != FOLLOW.end(); it3++)
-    {
-        string name = it3->first;
-        list<token> items = it3->second;
+    // cout << "-------- CHECKING TABLE FOLLOW ----------- \n";
+    // map<string, list<token>>::iterator it3;
+    // // for debugging
+    // for (it3 = FOLLOW.begin(); it3 != FOLLOW.end(); it3++)
+    // {
+    //     string name = it3->first;
+    //     list<token> items = it3->second;
 
-        cout << "[" << name << "]";
-        for (token &i : items)
-        {
-            cout << " " << TOK2STR[i];
-        }
-        cout << "\n";
-    }
+    //     cout << "[" << name << "]";
+    //     for (token &i : items)
+    //     {
+    //         cout << " " << TOK2STR[i];
+    //     }
+    //     cout << "\n";
+    // }
 
     upcoming_token = scan();
     string answer = program();
