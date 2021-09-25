@@ -9,6 +9,7 @@
 #include <map>
 #include <list>
 #include <iostream>
+#include <stack>
 #include <algorithm>
 #include "scan.h"
 
@@ -25,13 +26,13 @@ static token upcoming_token;
  *  2. we need to implement the error recovery program explained in the materials from the companion site
  *  */
 
-// TODO: define this
 static map<string, bool> EPS;
 static map<string, list<token>> FIRST;
 static map<string, list<token>> FOLLOW;
 static map<token, string> TOK2STR;
 // output syntax tree
-static string output_st;
+static string output_syntax_tree_str;
+static stack<string> mystack;
 
 // helper function for checking if a list contains a query element
 // credit: https://stackoverflow.com/questions/24139428/check-if-element-is-in-the-list-contains
@@ -288,44 +289,92 @@ void check_for_error(string sym)
     }
 }
 
-// Given a current token. We try and consume it. If it's Not a valid token in names, then we have to throw an error.
-void match(token expected)
+
+void grow_output_syntax_tree()
 {
+    string choice; 
+    switch (upcoming_token)
+    {
+        
+        case t_read:
+        case t_write:
+        case t_gets:
+        case t_add:
+        case t_mul:
+        case t_div:
+        case t_lparen:
+        case t_rparen:
+        case t_if:
+        case t_fi:
+        case t_do:
+        case t_od:
+        case t_check:
+        case t_equals:
+        case t_carrot:
+        case t_greater:
+        case t_less:
+        case t_greaterE:
+        case t_lessE:
+            choice = TOK2STR[upcoming_token];
+            break;
+        // new format that differs from TOK2STR
+        case t_eof:
+            choice = "";
+            break;
+        case t_id:
+            choice = "(id \"" + string(token_image) + "\")";
+            break;
+        case t_literal:
+            choice = "(num \"" + string(token_image) + "\")";
+            break;
+        default:
+            choice = "error";
+        
+    }
+    output_syntax_tree_str += choice;
+}
+
+// Given a current token. We try and consume it. If it's Not a valid token in names, then we have to throw an error.
+string match(token expected)
+{
+    string ret = "";
     if (upcoming_token == expected)
     {
+        ret += grow_output_syntax_tree();
         cout << "matched " << names[upcoming_token];
         if (upcoming_token == t_id || upcoming_token == t_literal)
             cout << ": " << token_image;
         cout << "\n";
         upcoming_token = scan();
     }
-    else
-    {
-        report_error("matching");
-    }
+    else report_error("matching");
+
+    return ret;
 }
 
 //--------------------------------//
 
-void program();
-void stmt_list();
-void stmt();
-void relation();
-void expr();
-void term();
-void term_tail();
-void factor();
-void factor_tail();
-void expr_tail();
-void relation_op();
-void add_op();
-void mul_op();
+string program();
+string stmt_list();
+string stmt();
+string relation();
+string expr();
+string term();
+string term_tail();
+string factor();
+string factor_tail();
+string expr_tail();
+string relation_op();
+string add_op();
+string mul_op();
 
 //--------------------------------//
 
-void program()
+string program()
 {
     check_for_error("P");
+
+    string ret = "(program "; 
     switch (upcoming_token)
     {
     case t_id:
@@ -336,17 +385,24 @@ void program()
     case t_check:
     case t_eof:
         cout << "predict P -> SL $$ \n";
-        stmt_list();
-        match(t_eof);
+        ret += stmt_list();
+        ret += match(t_eof);
         break;
     default:
         report_error("P");
     }
+
+    ret += ")";
+
+    return ret
 }
 
-void stmt_list()
+string stmt_list()
 {
     check_for_error("SL");
+
+    string ret = "";
+    string tmp = "";
     switch (upcoming_token)
     {
     case t_id:
@@ -356,95 +412,122 @@ void stmt_list()
     case t_do:
     case t_check:
         cout << "predict SL --> S SL \n";
-        stmt();
-        stmt_list();
+        ret += "[";
+        ret += stmt();
+        tmp += stmt_list();
+
+        if (tmp.back() == ']') ret = ret + tmp;
+        else ret = ret + " " + tmp;
+
         break;
     case t_eof:
     case t_fi:
     case t_od:
         cout << "predict SL --> epsilon \n";
+        ret += "]";
         break;
     default:
         report_error("SL");
     }
 }
 
-void stmt()
+string stmt()
 {
     check_for_error("S");
+
+    string ret = "(";
     switch (upcoming_token)
     {
     case t_id:
         cout << "predict S --> id := R \n";
-        match(t_id);
-        match(t_gets);
-        relation();
+        string tmp = match(t_id);
+        ret += match(t_gets);
+        ret += " " + tmp + " ";
+        ret += relation();
         break;
     case t_read:
         cout << "predict S --> read id \n";
-        match(t_read);
-        match(t_id);
+        ret += match(t_read);
+        ret += " ";
+        ret += match(t_id);
         break;
     case t_write:
         cout << "predict S --> write R \n";
-        match(t_write);
-        relation();
+        ret += match(t_write);
+        ret += " ";
+        ret += relation();
         break;
     case t_if:
         cout << "predict S --> if R SL fi\n";
-        match(t_if);
-        relation();
-        stmt_list();
+        ret += match(t_if);
+        ret += " ";
+        ret += relation();
+        ret += " ";
+        ret += stmt_list();
         match(t_fi);
         break;
     case t_do:
         cout << "predict S --> do SL od \n";
-        match(t_do);
-        stmt_list();
+        ret += match(t_do);
+        ret += " ";
+        ret += stmt_list();
         match(t_od);
         break;
     case t_check:
         cout << "predict S --> check R \n";
-        match(t_check);
-        relation();
+        ret += match(t_check);
+        ret += " ";
+        ret += relation();
         break;
     default:
         report_error("S");
     }
+
+    return ret;
 }
 
-void relation()
+string relation()
 {
     check_for_error("R");
+
+    string ret = "";
+    string tmp = "";
     switch (upcoming_token)
     {
     case t_lparen:
     case t_id:
     case t_literal:
         cout << "predict R --> E ET \n";
-        expr();
-        expr_tail();
+        ret += expr();
+        ret += expr_tail();
         break;
     default:
         report_error("R");
     }
+
+    return ret;
 }
 
-void term()
+string term()
 {
     check_for_error("T");
+
+    string ret = "";
     switch (upcoming_token)
     {
         case t_lparen:
         case t_id:
         case t_literal:
             cout << "predict T --> F FT \n";
-            factor();
-            factor_tail();
+            string out = factor();
+            S.push(out);
+            ret += factor_tail();
             break;
         default:
             report_error("T");
     }
+
+    return ret;
 }
 void expr()
 {
@@ -519,17 +602,25 @@ void expr_tail()
     }
 }
 
-void term_tail()
+string term_tail()
 {
     check_for_error("TT");
+
+    string ret = "";
     switch (upcoming_token)
     {
     case t_add:
     case t_sub:
         cout << "predict TT --> ao T TT \n";
-        add_op();
-        term();
-        term_tail();
+        ret += "(";
+        ret += add_op();
+        ret += " ";
+        ret += mystack.top ();
+        mystack.pop();
+        ret += " ";
+        S.push(term());
+        ret += term_tail();
+        ret += ")";
         break;
     case t_equals:
     case t_carrot:
@@ -548,23 +639,35 @@ void term_tail()
     case t_fi:
     case t_od:
         cout << "predict TT --> epsilon\n";
+        ret += S.top();
+        S.pop();
         break;
     default:
         report_error("TT");
     }
+
+    return ret;
 }
 
-void factor_tail()
+string factor_tail()
 {
     check_for_error("FT");
+
+    string ret = "";
     switch (upcoming_token)
     {
     case t_mul:
     case t_div:
         cout << "predict FT --> mo F FT \n";
-        mul_op();
-        factor();
-        factor_tail();
+        ret += "(";
+        ret += mul_op();
+        ret += " ";
+        ret += S.top();
+        S.pop();
+        ret += " ";
+        S.push(factor());
+        ret += factor_tail();
+        ret += ")";
         break;
     case t_add:
     case t_sub:
@@ -585,94 +688,109 @@ void factor_tail()
     case t_fi:
     case t_od:
         cout << "predict FT --> epsilon\n";
+        ret += S.top();
+        S.pop();
         break;
     default:
         report_error("FT");
     }
+
+    return ret;
 }
 
-void relation_op()
+string relation_op()
 {
     check_for_error("ro");
+
+    string ret = "";
     switch (upcoming_token)
     {
     case t_equals:
         cout << "predict ro --> == \n";
-        match(t_equals);
+        ret += match(t_equals);
         break;
     case t_carrot:
         cout << "predict ro --> <> \n";
-        match(t_carrot);
+        ret += match(t_carrot);
         break;
     case t_less:
         cout << "predict ro --> < \n";
-        match(t_less);
+        ret += match(t_less);
         break;
     case t_greater:
         cout << "predict ro --> > \n";
-        match(t_greater);
+        ret += match(t_greater);
         break;
     case t_lessE:
         cout << "predict ro --> <= \n";
-        match(t_lessE);
+        ret += match(t_lessE);
         break;
     case t_greaterE:
         cout << "predict ro --> >= \n";
-        match(t_greaterE);
+        ret += match(t_greaterE);
         break;
     default:
         report_error("ro");
     }
+
+    return ret;
 }
 
-void add_op()
+string add_op()
 {
     check_for_error("ao");
+
+    string ret = "";
     switch (upcoming_token)
     {
     case t_add:
         cout << "predict ao --> + \n";
-        match(t_add);
+        ret += match(t_add);
         break;
     case t_sub:
         cout << "predict ao --> - \n";
-        match(t_sub);
+        ret += match(t_sub);
         break;
     default:
         report_error("ao");
     }
+
+    return ret;
 }
 
-void mul_op()
+string mul_op()
 {
     check_for_error("mo");
 
+    string ret = "";
     switch (upcoming_token)
     {
     case t_mul:
         cout << "predict mo --> * \n";
-        match(t_mul);
+        ret += match(t_mul);
         break;
     case t_div:
         cout << "predict mo --> / \n";
-        match(t_div);
+        ret += match(t_div);
         break;
     default:
         report_error("mo");
     }
+
+    return ret;
 }
 
 int main()
 {
-    output_st = "";
+    output_syntax_tree_str = "(program ";
     initialize_EPS();
     initialize_FIRST();
     initialize_FOLLOW();
     initialize_TOK2STR();
 
+    // for debugging
     cout << "CHECKING TABLE EPS \n";
     map<string, bool>::iterator it1;
-    // for debugging
     for (it1 = EPS.begin(); it1 != EPS.end(); it1++)
     {
         std::cout << it1->first // string (key)
@@ -713,6 +831,7 @@ int main()
         cout << "\n";
     }
 
+    // PROGRAM begins here
     upcoming_token = scan();
     program();
 
