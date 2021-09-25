@@ -20,6 +20,10 @@ const char *names[] = {"read", "write", "id", "literal", "gets", "add",
 
 static token upcoming_token;
 
+//Simple way of determing if we need to print ast
+static bool printorna = true;
+
+
 /* TODO:
  *  1. we need to calculate the FIRST(.) and FOLLOW(.) sets for all the non-terminals
  *  2. we need to implement the error recovery program explained in the materials from the companion site
@@ -58,6 +62,8 @@ void initialize_EPS()
     EPS.insert({"mo", false});
 }
 
+
+//First set for Wirths algo
 void initialize_FIRST()
 {
     list<token> P = {t_id, t_read, t_write, t_if, t_do, t_check, t_eof};
@@ -88,7 +94,7 @@ void initialize_FIRST()
     FIRST.insert({"ao", ao});
     FIRST.insert({"mo", mo});
 }
-
+//Follow for Wirths algo
 void initialize_FOLLOW()
 {
 
@@ -229,43 +235,44 @@ void initialize_FOLLOW()
     FOLLOW.insert({"mo", mo});
 }
 
-void initialize_TOK2STR()
-{
-    TOK2STR.insert({t_read, "read"});
-    TOK2STR.insert({t_write, "write"});
-    TOK2STR.insert({t_id, "id"});
-    TOK2STR.insert({t_literal, "lit"});
-    TOK2STR.insert({t_gets, ":="});
-    TOK2STR.insert({t_add, "+"});
-    TOK2STR.insert({t_sub, "-"});
-    TOK2STR.insert({t_mul, "*"});
-    TOK2STR.insert({t_div, "/"});
-    TOK2STR.insert({t_lparen, "("});
-    TOK2STR.insert({t_rparen, ")"});
-    TOK2STR.insert({t_eof, "$$"});
-    TOK2STR.insert({t_if, "if"});
-    TOK2STR.insert({t_fi, "fi"});
-    TOK2STR.insert({t_do, "do"});
-    TOK2STR.insert({t_od, "od"});
-    TOK2STR.insert({t_check, "check"});
-    TOK2STR.insert({t_equals, "=="});
-    TOK2STR.insert({t_carrot, "<>"});
-    TOK2STR.insert({t_greater, ">"});
-    TOK2STR.insert({t_less, "<"});
-    TOK2STR.insert({t_greaterE, ">="});
-    TOK2STR.insert({t_lessE, "<="});
-}
+//debugging purposes
+// void initialize_TOK2STR()
+// {
+//     TOK2STR.insert({t_read, "read"});
+//     TOK2STR.insert({t_write, "write"});
+//     TOK2STR.insert({t_id, "id"});
+//     TOK2STR.insert({t_literal, "lit"});
+//     TOK2STR.insert({t_gets, ":="});
+//     TOK2STR.insert({t_add, "+"});
+//     TOK2STR.insert({t_sub, "-"});
+//     TOK2STR.insert({t_mul, "*"});
+//     TOK2STR.insert({t_div, "/"});
+//     TOK2STR.insert({t_lparen, "("});
+//     TOK2STR.insert({t_rparen, ")"});
+//     TOK2STR.insert({t_eof, "$$"});
+//     TOK2STR.insert({t_if, "if"});
+//     TOK2STR.insert({t_fi, "fi"});
+//     TOK2STR.insert({t_do, "do"});
+//     TOK2STR.insert({t_od, "od"});
+//     TOK2STR.insert({t_check, "check"});
+//     TOK2STR.insert({t_equals, "=="});
+//     TOK2STR.insert({t_carrot, "<>"});
+//     TOK2STR.insert({t_greater, ">"});
+//     TOK2STR.insert({t_less, "<"});
+//     TOK2STR.insert({t_greaterE, ">="});
+//     TOK2STR.insert({t_lessE, "<="});
+// }
 
-void error()
-{
-    cerr << "Got your self a syntax Error! \n";
-}
-
+//Print error + turn off print
 void report_error(string sym)
 {
     cout << "found syntax error at " << sym << endl;
+    printorna = false;
+    
 }
 
+
+//Implementation of Wirths algo
 void check_for_error(string sym)
 {
     bool eps = EPS[sym];
@@ -741,7 +748,7 @@ int main()
     initialize_EPS();
     initialize_FIRST();
     initialize_FOLLOW();
-    initialize_TOK2STR();
+  //  initialize_TOK2STR();
 
     // cout << "CHECKING TABLE EPS \n";
     // map<string, bool>::iterator it1;
@@ -788,7 +795,11 @@ int main()
 
     upcoming_token = scan();
     string answer = program();
-    cout << answer << ')';
+ 
+//Simple check to print if we can get a good ast tree
+    printorna == true 
+            ? cout << answer << ')' 
+            : cout << "no ast cuz error";
 
     return 0;
 }
