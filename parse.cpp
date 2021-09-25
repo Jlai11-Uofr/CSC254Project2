@@ -454,7 +454,7 @@ string relation()
     default:
         report_error("R");
     }
-    return s;
+    return s + " )";
 }
 
 string term()
@@ -564,7 +564,7 @@ string expr_tail(string s1)
 
 string term_tail(string s1)
 {
-    string s = " ";
+    string s = "( ";
     check_for_error("TT");
     switch (upcoming_token)
     {
@@ -600,12 +600,12 @@ string term_tail(string s1)
     default:
         report_error("TT");
     }
-    return s;
+    return s +" )";
 }
 
 string factor_tail(string s1)
 {
-    string s = " ";
+    string s = "( ";
     check_for_error("FT");
     switch (upcoming_token)
     {
@@ -643,7 +643,7 @@ string factor_tail(string s1)
     default:
         report_error("FT");
     }
-    return s;
+    return s + ")";
 }
 
 string relation_op()
@@ -788,7 +788,7 @@ int main()
 
     upcoming_token = scan();
     string answer = program();
-    cout << answer;
+    cout << answer << ')';
 
     return 0;
 }
