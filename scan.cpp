@@ -34,6 +34,10 @@ token scan() {
             c = getchar();
         } while (isalpha(c) || isdigit(c) || c == '_');
         token_image[i] = '\0';
+
+        //As we have a new grammar, we need to extend our scanner to acccept the new tokens that are introduced with this extended calculator language.
+
+
         if (!strcmp(token_image, "read")) return t_read;
         else if (!strcmp(token_image, "if")) return t_if;
         else if (!strcmp(token_image, "fi")) return t_fi;
@@ -71,6 +75,8 @@ token scan() {
         case '(': c = getchar(); return t_lparen;
         case ')': c = getchar(); return t_rparen;
         case '>': 
+
+        // If we see a >, can eitheir be apart of >= so we must scan the next charater to deteremine if it is. If it is, we must consume this = as well.
          if ((c = getchar()) == '=') {
                 c = getchar();
                     return t_greaterE;
@@ -78,6 +84,7 @@ token scan() {
                 return t_greater;
             }
             break;
+              // If we see a >, can eitheir be apart of <= so we must scan the next charater to deteremine if it is. If it is, we must consume this = as well.
         case '<': 
         if ((c = getchar()) == '=') {
                 c=getchar();
@@ -91,10 +98,13 @@ token scan() {
                 return t_less;
             }
             break;
+
+        //if we see a =, it could be equality so we need to make sure that is is not a equal ==. If it is we consume and return. Else ignore and keep going.
         case '=': 
                  if ((c = getchar()) != '=') {
                         cerr << "expected '=' after '=', got " << static_cast<char>(c) << "\n";
-                         exit(1);
+                         c = getchar();
+                         return scan();
             } else {
                 c = getchar();
                 return t_equals;
