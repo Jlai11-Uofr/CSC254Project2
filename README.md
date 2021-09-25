@@ -137,4 +137,4 @@ found syntax error at matching
 no ast cuz error
 
 
-if we encounter a lexical error, we will see something a lexical error message.
+if we encounter a lexical error, we will see something an error message telling us where our error is.
