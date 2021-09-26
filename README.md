@@ -1,6 +1,6 @@
 # CSC254Project2
 
-Completed by: Sizhe Li (sli96) & Jonathan Lai
+Completed by: Sizhe Li (sli96) & Jonathan Lai (jlai11)
 
 -------------------------------------
 Dear TAs:
