@@ -22,6 +22,9 @@ static token upcoming_token;
 // flag that controls whether an error has been found
 // if so, then we do not print the AST
 static bool no_error_found = true;
+
+// We store EPS, FIRST, FOLLOW in map data structrue so that we can
+// use the name of the nonterminal to query them.
 static map<string, bool> EPS;
 static map<string, list<token>> FIRST;
 static map<string, list<token>> FOLLOW;
